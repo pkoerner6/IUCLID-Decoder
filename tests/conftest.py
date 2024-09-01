@@ -3,8 +3,6 @@ import pandas as pd
 import numpy as np
 import os
 
-def pytest_ignore_collect(path):
-  return "reach_study_results" in str(path)
 
 d = {
   "A": [1, 2, 3], 
