@@ -135,7 +135,7 @@ def retrieve_reach_study_results(
 
     # Save the dataframe additionally to excel
     if save_to_excel:
-        excel_path = os.path.join(path_to_save, f"{path_to_save}.xlsx")
+        excel_path = os.path.join(os.getcwd(), f"{path_to_save}.xlsx")
         with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
             for subtype, df in dataframes.items():
                 df.to_excel(writer, sheet_name=subtype, index=False)
