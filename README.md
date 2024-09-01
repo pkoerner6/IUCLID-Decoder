@@ -11,7 +11,7 @@ To install this package, clone the repository and install it using `pip`:
 ```bash
 git clone https://github.com/pkoerner6/parse_iuclid.git
 cd parse_iuclid
-pip install .
+pip3 install .
 ```
 
 ## Usage
