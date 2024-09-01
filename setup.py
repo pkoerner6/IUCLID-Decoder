@@ -85,6 +85,7 @@ setup(
         'Werkzeug'==3.0.3,
         'XlsxWriter'==3.2.0,
         'yarg'==0.1.9,
+    ],
     include_package_data = True,
     python_requires = '>=3.6'
 )
