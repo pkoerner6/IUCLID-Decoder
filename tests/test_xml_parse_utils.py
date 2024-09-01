@@ -7,15 +7,24 @@ from typing import List, Dict, Tuple, Set
 import xml.etree.ElementTree as ET
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from xml_parse import unzip_i6z_files
-from xml_parse import check_if_exists
-from xml_parse import find_info_in_manifest_per_doc
-from xml_parse import find_info_in_manifest_per_doc_reference
-from xml_parse import create_manifest_df
-from xml_parse import check_tag_of_children
-from xml_parse import get_topics
-from xml_parse import get_values
-from xml_parse import get_code_to_decode
+from xml_parse_utils import unzip_i6z_files
+from xml_parse_utils import check_if_exists
+from xml_parse_utils import find_info_in_manifest_per_doc
+from xml_parse_utils import find_info_in_manifest_per_doc_reference
+from xml_parse_utils import create_manifest_df
+from xml_parse_utils import check_tag_of_children
+from xml_parse_utils import get_topics
+from xml_parse_utils import get_values
+from xml_parse_utils import get_code_to_decode
+from xml_parse_utils import get_values_for_dir
+from xml_parse_utils import create_manifest
+from xml_parse_utils import get_values_for_dir_list
+from xml_parse_utils import rename_cols
+from xml_parse_utils import lower_upper_function
+from xml_parse_utils import value_function
+from xml_parse_utils import convert_units_given_unit_dicts
+from xml_parse_utils import convert_units
+from xml_parse_utils import create_connection
 
 
 def test_unzip_i6z_files():
