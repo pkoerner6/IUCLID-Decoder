@@ -67,7 +67,7 @@ def find_info_in_manifest_per_doc(document: ET.Element, name_space: Dict[str, st
     return infos
 
 
-def find_info_in_manifest_per_doc_reference(document: ET.Element) -> List[str]:
+def find_info_in_manifest_per_doc_reference(document: ET.Element, name_space: Dict[str, str]) -> List[str]:
     """
     Extracts reference-specific chemical information (IUPAC-name, CAS-number, inventory-number) 
     from the given document.
@@ -140,7 +140,7 @@ def create_manifest_df(dir_name: str, name_space: Dict[str, str], subtype: str) 
                         doc.get("id") == uuid
                         and doc.findall("manifest:type", name_space)[0].text == "REFERENCE_SUBSTANCE"
                     ):
-                        ref_infos = find_info_in_manifest_per_doc_reference(document=doc)
+                        ref_infos = find_info_in_manifest_per_doc_reference(document=doc, name_space=name_space)
                         for i, ref_infos_lst in enumerate(ref_infos_lsts):
                             ref_infos_lst.append(ref_infos[i])
         col_names = ["ref_iupac_name", "ref_cas", "ref_inventory_num"]
