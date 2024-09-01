@@ -2,7 +2,7 @@
 
 ## Overview
 
-This package processes REACH study results and saves the data to an SQLite database or Excel file.
+This package processes REACH study results and saves the data to an SQLite database and Excel file. Running this file requires you to first download the REACH study results dossiers from the [IUCLID website](https://iuclid6.echa.europa.eu). The REACH study results dossiers should be placed in the same directory as the code file where you intend to use the retrieve_reach_study_results function.
 
 ## Installation
 
