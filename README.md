@@ -30,16 +30,17 @@ The retrieve_reach_study_results function accepts four arguments—two required 
 ### Function Output
 The function does not return any value. Instead, it saves the retrieved data from the REACH study results dossiers into an SQLite database and, optionally, an Excel file.
 
+### Example Use
 ```bash
 from parse_iuclid import retrieve_reach_study_results
 
 retrieve_reach_study_results(
-    path_dossiers = "path/to/dossiers", # for example: "reach_study_results/reach_study_results_dossiers_23-05-2023"
-    path_to_save = "path/to/save", # for example "iuclid_data"
-    subtypes = [ # optional
+    path_dossiers = "reach_study_results/reach_study_results_dossiers_23-05-2023",
+    path_to_save = "iuclid_data", 
+    subtypes = [
         "AcuteToxicityDermal",
         "AcuteToxicityInhalation",
     ],
-    save_to_excel = True # optional
+    save_to_excel = True
 )
 ```
