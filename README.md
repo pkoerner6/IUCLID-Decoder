@@ -2,7 +2,7 @@
 
 ## Overview
 
-This package processes REACH study results and saves the data to an SQLite database and Excel file. Running this file requires you to first download the REACH study results dossiers from the [IUCLID website](https://iuclid6.echa.europa.eu). The REACH study results dossiers should be placed in the same directory as the code file where you intend to use the retrieve_reach_study_results function.
+This package processes REACH study results and saves the data to an SQLite database and optionally an Excel file. Running this file requires you to first download the REACH study results dossiers from the [IUCLID website](https://iuclid6.echa.europa.eu). The REACH study results dossiers should be placed in the same directory as the code file where you intend to use the retrieve_reach_study_results function.
 
 ## Installation
 
@@ -15,12 +15,31 @@ pip3 install .
 ```
 
 ## Usage
+
+To use the retrieve_reach_study_results function in your Python code, you first need to install the parse_iuclid package as described above. Ensure that the Python script where you intend to use the retrieve_reach_study_results function is in the same directory as the downloaded REACH study results dossiers.
+
+### Function Arguments
+The retrieve_reach_study_results function accepts four arguments—two required and two optional:
+
+- path_dossiers (required): The path to the REACH study results dossiers as a string. The REACH study results dossiers should be in the same directory as the script where you're using the function.
+- path_to_save (required): The directory where you want to save the resulting SQLite database and Excel file. You can also provide just a name for the SQLite database and Excel file; in that case, the files will be saved in the same directory as your script.
+- subtypes (optional): By default, the function retrieves information for all subtypes. Subtypes represent specific study endpoints, such as AcuteToxicityDermal or Hydrolysis. If you want to retrieve data for specific subtypes only, you can provide a list of the desired subtypes.
+- save_to_excel (optional): By default, this is set to False. If you want to generate an Excel file in addition to the SQLite database, set this to True.
+
+
+### Function Output
+The function does not return any value. Instead, it saves the retrieved data from the REACH study results dossiers into an SQLite database and, optionally, an Excel file.
+
 ```bash
 from parse_iuclid import retrieve_reach_study_results
 
 retrieve_reach_study_results(
-    path_dossiers="path/to/dossiers", # should be in same folder as the code file you use the function in (for example: "reach_study_results/reach_study_results_dossiers_23-05-2023")
-    path_to_save="path/to/save", # for example "iuclid_data"
-    save_to_excel=True
+    path_dossiers = "path/to/dossiers", # for example: "reach_study_results/reach_study_results_dossiers_23-05-2023"
+    path_to_save = "path/to/save", # for example "iuclid_data"
+    subtypes = [ # optional
+        "AcuteToxicityDermal",
+        "AcuteToxicityInhalation",
+    ],
+    save_to_excel = True # optional
 )
 ```
