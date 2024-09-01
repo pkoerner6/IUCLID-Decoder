@@ -222,7 +222,7 @@ def get_values(
     return results
 
 
-def get_code_to_decode(dir_list: List[str], subtype: str) -> Tuple[Dict[str, str], List[str]]:
+def get_code_to_decode(dir_list: List[str], subtype: str, directory_to_folders: str) -> Tuple[Dict[str, str], List[str]]:
     """
     The information in the different .i6d files is encoded. For example, instead of listing "guinea pig" 
     as the test element, it says "1952". These encodings are provided for each subtype in the 
@@ -425,7 +425,7 @@ def get_values_for_dir_list(
     and returns a DataFrame containing all relevant data for the specified subtype.
     """
     list_of_dfs: List[pd.DataFrame] = []
-    code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype) # Get the code-to-decoded mapping and the list of columns that require decoding
+    code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype, directory_to_folders=directory_to_folders) # Get the code-to-decoded mapping and the list of columns that require decoding
     # Iterate over each directory in the list, create a manifest DataFrame for the current directory, and get the values for the directory
     for dir in tqdm.tqdm(dir_list):
         manifest_df = create_manifest(
