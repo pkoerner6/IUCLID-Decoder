@@ -163,6 +163,7 @@ def get_topics(results: Dict[str, List[str]]) -> List[str]:
 
 def get_values(
     previous_element: List[ET.Element],
+    name_space: Dict[str, str],
     nspace: str,
     tags: List[str],
     code_to_decoded: Dict[str, str],
@@ -187,6 +188,7 @@ def get_values(
                 tags = check_tag_of_children(elem)
                 results = get_values( # Recursively call get_values for each child element
                     previous_element=[elem],
+                    name_space=name_space,
                     nspace=nspace,
                     tags=tags,
                     code_to_decoded=code_to_decoded,
@@ -199,6 +201,7 @@ def get_values(
             tags = check_tag_of_children(element[0])
             results = get_values( # Recursion
                 previous_element=element,
+                name_space=name_space,
                 nspace=nspace,
                 tags=tags,
                 code_to_decoded=code_to_decoded,
@@ -342,6 +345,7 @@ def get_values_for_dir(
             nspace = "study_record"
             results = get_values(
                 previous_element=results_discussion,
+                name_space=name_space,
                 nspace=nspace,
                 tags=tags,
                 code_to_decoded=code_to_decoded,
