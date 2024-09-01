@@ -128,10 +128,11 @@ def retrieve_reach_study_results(
         dataframes[subtype] = df
         
         # Save the dataframe to the SQLite database as a table named after the current subtype
-        current_directory = os.path.dirname(os.path.abspath(__file__))
-        database = os.path.join(current_directory, f"{path_to_save}.db")
-        conn = create_connection(database)
-        df.to_sql(subtype, conn, if_exists='replace', index=False)
+        if not df.empty:
+            current_directory = os.path.dirname(os.path.abspath(__file__))
+            database = os.path.join(current_directory, f"{path_to_save}.db")
+            conn = create_connection(database)
+            df.to_sql(subtype, conn, if_exists='replace', index=False)
 
     # Save the dataframe additionally to excel
     if save_to_excel:
