@@ -19,6 +19,10 @@ from retrieve_reach_study_results import retrieve_reach_study_results
 retrieve_reach_study_results(
     path_dossiers="path/to/dossiers",
     path_to_save="path/to/save",
+    subtypes = [
+        "AcuteToxicityDermal",
+        "AcuteToxicityInhalation",
+    ], 
     save_to_excel=True
 )
 """
