@@ -16,15 +16,15 @@ pip3 install .
 
 ## Usage
 
-To use the retrieve_reach_study_results function in your Python code, you first need to install the parse_iuclid package as described above. Ensure that the Python script where you intend to use the retrieve_reach_study_results function is in the same directory as the downloaded REACH study results dossiers.
+To use the ```retrieve_reach_study_results``` function in your Python code, you first need to install the ```parse_iuclid``` package as described above. Ensure that the Python script where you intend to use the ```retrieve_reach_study_results``` function is in the same directory as the downloaded REACH study results dossiers.
 
 ### Function Arguments
 The retrieve_reach_study_results function accepts four arguments—two required and two optional:
 
-- path_dossiers (required): The path to the REACH study results dossiers as a string. The REACH study results dossiers should be in the same directory as the script where you're using the function.
-- path_to_save (required): The directory where you want to save the resulting SQLite database and Excel file. You can also provide just a name for the SQLite database and Excel file; in that case, the files will be saved in the same directory as your script.
-- subtypes (optional): By default, the function retrieves information for all subtypes. Subtypes represent specific study endpoints, such as AcuteToxicityDermal or Hydrolysis. If you want to retrieve data for specific subtypes only, you can provide a list of the desired subtypes.
-- save_to_excel (optional): By default, this is set to False. If you want to generate an Excel file in addition to the SQLite database, set this to True. It should only be set to True if the ```subtypes``` argument is used with no more than 31 subtypes. Otherwise, only the first 31 subtypes will be saved to the Excel file. 
+- ```path_dossiers``` (required): The path to the REACH study results dossiers as a string. The REACH study results dossiers should be in the same directory as the script where you're using the function.
+- ```path_to_save``` (required): The directory where you want to save the resulting SQLite database and Excel file. You can also provide just a name for the SQLite database and Excel file; in that case, the files will be saved in the same directory as your script.
+- ```subtypes``` (optional): By default, the function retrieves information for all subtypes. Subtypes represent specific study endpoints, such as *AcuteToxicityDermal* or *Hydrolysis*. If you want to retrieve data for specific subtypes only, you can provide a list of the desired subtypes.
+- ```save_to_excel``` (optional): By default, this is set to ```False```. If you want to generate an Excel file in addition to the SQLite database, set this to ```True```. It should only be set to ```True``` if the ```subtypes``` argument is used with no more than 31 subtypes. Otherwise, only the first 31 subtypes will be saved to the Excel file. 
 
 
 ### Function Output
