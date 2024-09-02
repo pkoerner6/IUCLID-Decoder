@@ -82,6 +82,8 @@ def retrieve_reach_study_results(
             "Viscosity",
             "WaterSolubility",
         ]
+ 
+    print(len(subtypes)) # TODO
 
     dataframes = {}
 
@@ -133,11 +135,14 @@ def retrieve_reach_study_results(
             database = os.path.join(current_directory, f"{path_to_save}.db")
             conn = create_connection(database)
             df.to_sql(subtype, conn, if_exists='replace', index=False)
+        else: # TODO
+            print("Empty dataframe!!") # TODO
 
     # Save the dataframe additionally to excel
     if save_to_excel:
         excel_path = os.path.join(os.getcwd(), f"{path_to_save}.xlsx")
         with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
-            for subtype, df in dataframes.items():
-                df.to_excel(writer, sheet_name=subtype, index=False)
+            for count, (subtype, df) in enumerate(dataframes.items()):
+                if count <= 31:
+                    df.to_excel(writer, sheet_name=subtype, index=False)
             
