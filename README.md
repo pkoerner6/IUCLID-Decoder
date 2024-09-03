@@ -1,25 +1,25 @@
-# Parse IUCLID
+# IUCLID-Decoder
 
 ## Overview
 
-This package processes REACH study results and saves the data to an SQLite database and optionally an Excel file. Running this file requires you to first download the REACH study results dossiers from the [IUCLID website](https://iuclid6.echa.europa.eu). The REACH study results dossiers should be placed in the same directory as the code file where you intend to use the ```retrieve_reach_study_results``` function.
+This package processes REACH study results and saves the data to an SQLite database and optionally an Excel file. Running this file requires you to first download the REACH study results dossiers from the [IUCLID website](https://iuclid6.echa.europa.eu). The REACH study results dossiers should be placed in the same directory as the code file where you intend to use the ```decrypt_reach_resultse``` function.
 
 ## Installation
 
 To install this package, clone the repository and install it using `pip`:
 
 ```bash
-git clone https://github.com/pkoerner6/parse_iuclid.git
-cd parse_iuclid
+git clone https://github.com/pkoerner6/IUCLID-Decoder.git
+cd IUCLID-Decoder
 pip3 install .
 ```
 
 ## Usage
 
-To use the ```retrieve_reach_study_results``` function in your Python code, you first need to install the ```parse_iuclid``` package as described above. Ensure that the Python script where you intend to use the ```retrieve_reach_study_results``` function is in the same directory as the downloaded REACH study results dossiers.
+To use the ```decrypt_reach_results``` function in your Python code, you first need to install the ```iuclid_decoder``` package as described above. Ensure that the Python script where you intend to use the ```decrypt_reach_results``` function is in the same directory as the downloaded REACH study results dossiers.
 
 ### Function Arguments
-The retrieve_reach_study_results function accepts four arguments—two required and two optional:
+The ```decrypt_reach_results``` function accepts four arguments—two required and two optional:
 
 - ```path_dossiers``` (required): The path to the REACH study results dossiers as a string. The REACH study results dossiers should be in the same directory as the script where you're using the function.
 - ```path_to_save``` (required): The directory where you want to save the resulting SQLite database and Excel file. You can also provide just a name for the SQLite database and Excel file; in that case, the files will be saved in the same directory as your script.
@@ -32,16 +32,15 @@ The function does not return any value. Instead, it saves the retrieved data fro
 
 ### Example Usage
 ```bash
-from parse_iuclid import retrieve_reach_study_results
+from iuclid_decoder import decrypt_reach_results
 
-retrieve_reach_study_results(
-    path_dossiers = "reach_study_results/reach_study_results_dossiers_23-05-2023",
-    path_to_save = "iuclid_data", 
+decrypt_reach_results(
+    path_dossiers="reach_study_results/reach_study_results_dossiers_23-05-2023",
     subtypes = [
         "AcuteToxicityDermal",
         "AcuteToxicityInhalation",
     ],
-    save_to_excel = True
+    save_to_excel=True
 )
 ```
 
@@ -59,5 +58,5 @@ If you encounter any incorrect, unintuitive, or undocumented behavior, please re
 Clearly describe the issue, including steps to reproduce it, expected behavior, and any relevant logs or screenshots.
 
 ### Seeking Support
-For questions about understanding, using, or extending ```parse_iuclid```, we encourage you to use the GitHub Discussions feature. This platform is better suited for support queries than the issue tracker.
+For questions about understanding, using, or extending ```iuclid_decoder```, we encourage you to use the GitHub Discussions feature. This platform is better suited for support queries than the issue tracker.
 
