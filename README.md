@@ -51,12 +51,8 @@ We welcome your contributions, feedback, and inquiries! Please follow these guid
 
 ### Contributing to the Software
 We greatly appreciate code contributions and encourage you to submit new code through GitHub pull requests. This process helps maintain a clear record of code authorship, tracks and archives the code review workflow, and allows us to benefit from our continuous integration (CI) setup, which automates testing of newly added code.
-
-#### Code Submission: 
-Submit your code via GitHub pull requests. 
-
-#### Copyright and Licensing:
-By contributing code, you implicitly transfer copyright to the project. If you need an exception, please indicate this when creating a pull request.
+- Code Submission: Submit your code via GitHub pull requests.
+- Copyright and Licensing: By contributing code, you implicitly transfer copyright to the project. If you need an exception, please indicate this when creating a pull request.
 
 ### Reporting Issues
 If you encounter any incorrect, unintuitive, or undocumented behavior, please report it using the GitHub issue tracker. This helps us address bugs and improve the software.
