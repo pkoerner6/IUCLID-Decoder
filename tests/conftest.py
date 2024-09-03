@@ -68,6 +68,20 @@ conversion_dict_lower_upper = {
 }
 
 
+convert_units_dict = {
+    "pc_unit": ["Koc", "Kd", "Kow", "Pow"],
+    "pc_lowervalue": [1000, 500, 2000, 10], 
+    "pc_uppervalue": [1000, 500, 2000, 10], 
+    "temperature_unit": ["K", "°C", "°F", "K"],
+    "temperature_value": [300, 25, 77, 273.15],
+    "henrys_law_constant_h_h_unit": ["Pa m³/mol", "atm", "atm m³/mol", "Pa m³/mol"],
+    "henrys_law_constant_h_h_lowervalue": [1000, 1, 1, 1000],
+    "henrys_law_constant_h_h_uppervalue": [2000, 2, 2, 2000],
+    "henrys_law_constant_h_temp_value": [25, 25, 25, 25],
+    "henrys_law_constant_h_temp_unit":["°C", "°C", "°C", "°C"],
+    "time_unit": ["s", "min", "h", "d"],
+    "time_value": [3600, 60, 1, 1],
+}
 
 
 @pytest.fixture
@@ -86,3 +100,6 @@ def conversion_df():
 def conversion_df_lower_upper():
     return pd.DataFrame(conversion_dict_lower_upper)
 
+@pytest.fixture
+def df_conversion():
+    return pd.DataFrame(convert_units_dict)

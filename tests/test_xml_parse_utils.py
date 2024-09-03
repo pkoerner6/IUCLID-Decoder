@@ -3,8 +3,9 @@ import os
 import pandas as pd
 import numpy as np
 import tqdm
-# from collections import defaultdict
-from typing import List, Dict, Tuple, Set
+import math
+import sqlite3
+from typing import List, Dict
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 
@@ -33,6 +34,7 @@ def test_unzip_i6z_files():
     unzip_i6z_files("tests/reach_study_results_dossiers_23-05-2023_test")
     assert os.path.exists('tests/reach_study_results_dossiers_23-05-2023_test_unzipped')
 
+
 class Element:
     def __init__(self, text):
         self.text = text
@@ -45,6 +47,7 @@ def test_check_if_exists():
     elements = [Element(None)]
     assert check_if_exists(elements) == "None"
 
+
 def test_find_info_in_manifest_per_doc():
     subtype="AcuteToxicityInhalation"
     name_space = {
@@ -55,25 +58,25 @@ def test_find_info_in_manifest_per_doc():
     }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x] 
     for dir in dir_list:
         dir_name = os.path.join(directory_to_folders, dir, "manifest.xml")
         manifest_col_to_values: Dict[str, List] = defaultdict(list)
-        tree = ET.parse(dir_name) # Parse the manifest XML file
-        contained_docs = tree.findall("manifest:contained-documents", name_space)[0] # Get the metadata of all the documents and attachments included in the folder
+        tree = ET.parse(dir_name) 
+        contained_docs = tree.findall("manifest:contained-documents", name_space)[0] 
         for doc in contained_docs:
             subtypes = doc.findall("manifest:subtype", name_space)
             for st in subtypes:
-                # Find information (name, IUPAC-name, CAS-number, inventory-number, references) in the manifest for a given subtype
                 if st.text == subtype:
                     manifest_col_to_values["subtype"].append(str(st.text))
                     long_id = doc.findall("manifest:name", name_space)
                     manifest_col_to_values["long_id"].append(str(long_id[0].get("{http://www.w3.org/1999/xlink}href")))
                     infos = find_info_in_manifest_per_doc(document=doc, name_space=name_space)
-    assert infos[0] == 'Propanoic acid, 2-(4-hydroxyphenoxy)-, sodium salt (1:1), (2R)-'# name
-    assert infos[1] == 'sodium (2R)-2-(4-hydroxyphenoxy)propanoate' # IUPAC-name
-    assert infos[2] == '133647-88-8' # CAS-number
-    assert infos[3] == '603-758-6'# inventory-number
+    assert infos[0] == 'Propanoic acid, 2-(4-hydroxyphenoxy)-, sodium salt (1:1), (2R)-'
+    assert infos[1] == 'sodium (2R)-2-(4-hydroxyphenoxy)propanoate' 
+    assert infos[2] == '133647-88-8'
+    assert infos[3] == '603-758-6'
+
 
 def test_find_info_in_manifest_per_doc_reference():
     subtype="AcuteToxicityInhalation"
@@ -85,17 +88,17 @@ def test_find_info_in_manifest_per_doc_reference():
     }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x]  
     for dir in dir_list:
         dir_name = os.path.join(directory_to_folders, dir, "manifest.xml")
 
         manifest_col_to_values: Dict[str, List] = defaultdict(list)
-        tree = ET.parse(dir_name) # Parse the manifest XML file
-        contained_docs = tree.findall("manifest:contained-documents", name_space)[0] # Get the metadata of all the documents and attachments included in the folder
+        tree = ET.parse(dir_name) 
+        contained_docs = tree.findall("manifest:contained-documents", name_space)[0] 
         for doc in contained_docs:
             subtypes = doc.findall("manifest:subtype", name_space)
             for st in subtypes:
-                # Find information (name, IUPAC-name, CAS-number, inventory-number, references) in the manifest for a given subtype
+                
                 if st.text == subtype:
                     manifest_col_to_values["subtype"].append(str(st.text))
                     long_id = doc.findall("manifest:name", name_space)
@@ -113,8 +116,6 @@ def test_find_info_in_manifest_per_doc_reference():
                             reference = elem.findall("manifest:ref-uuid", name_space)[0].text
                             refs.append(str(reference))
                     manifest_col_to_values["reference"].append(refs)
-        # For each reference we retrieve the ref_uuids which are the references to documents containing information on 
-        # test_material_information (references are references to all related documents)
         for references in manifest_col_to_values["reference"]:
             uuids: List[str] = []
             for ref in references:
@@ -130,7 +131,6 @@ def test_find_info_in_manifest_per_doc_reference():
                                 uuid = str(link.findall("manifest:ref-uuid", name_space)[0].text)
                                 uuids.append(uuid)
             manifest_col_to_values["ref_uuids"].append(uuids)
-        # For each ref_uuid (so for each reference substance) we get the IUPAC-name, CAS-number, and inventory-number
         ref_infos_dict = {}
         for uuids in manifest_col_to_values["ref_uuids"]:
             if len(uuids) > 0:
@@ -142,7 +142,6 @@ def test_find_info_in_manifest_per_doc_reference():
                         ):
                             ref_infos = find_info_in_manifest_per_doc_reference(document=doc, name_space=name_space)
                             ref_infos_dict[uuid] = ref_infos
-        # For each uuid the function should return a list containing IUPAC-name, CAS-number, inventory-number
         assert ref_infos_dict['7f57bc4e-7fdb-4c9a-8057-86bd2629e86a/f6fbb0ad-2581-47be-b240-9a62480b1516'] == ['(R)-2-(4-Hydroxyphenoxy)propanoic acid', 'None', 'None']
         assert ref_infos_dict['5b39705a-26fd-4f92-a9cf-5be8ed3927f9/f6fbb0ad-2581-47be-b240-9a62480b1516'] == ['Propanoic acid, 2-(4-hydroxyphenoxy)-, (2R)-', 'None', 'None']
         assert ref_infos_dict['73805da2-bb8d-48bf-a3ea-ebea4de31bd2/f6fbb0ad-2581-47be-b240-9a62480b1516'] == ['94050-90-5', '94050-90-5', 'None']
@@ -159,7 +158,7 @@ def test_create_manifest_df():
     }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x]  
     for dir in dir_list:
         dir_name = os.path.join(directory_to_folders, dir, "manifest.xml")
         manifest_df = create_manifest_df(dir_name=dir_name, name_space=name_space, subtype=subtype)
@@ -191,6 +190,7 @@ def test_create_manifest_df():
     assert manifest_df.iloc[0]['ref_cas'] == "None, None, 94050-90-5, None"
     assert manifest_df.iloc[0]['ref_inventory_num'] == "None, None, None, 407-960-3"
 
+
 def test_check_tag_of_children(): 
     tags_list = []
 
@@ -203,9 +203,8 @@ def test_check_tag_of_children():
     }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x]  
 
-    # Iterate over each directory in the list, create a manifest DataFrame for the current directory, and get the values for the directory
     for dir in tqdm.tqdm(dir_list):
         manifest_df = create_manifest(
             dir=dir,
@@ -215,35 +214,33 @@ def test_check_tag_of_children():
         )
         if len(manifest_df) != 0:
             df = pd.DataFrame()
-            if subtype not in str(manifest_df["subtype"].values): # Check if the subtype is present in the manifest DataFrame and otherwise return an empty DataFrame
+            if subtype not in str(manifest_df["subtype"].values): 
                 return df
             
-            # Iterate over indices of rows in manifest_df that match the specified subtype
             parameter_indices = manifest_df.index[manifest_df["subtype"] == subtype].tolist()
             for indx in parameter_indices:
-                id = manifest_df.at[indx, "long_id"] # Get the 'long_id' from the manifest DataFrame
-                dir_name = os.path.join(directory_to_folders, dir, id) # Construct the path to the directory containing the XML file with the long_id
+                id = manifest_df.at[indx, "long_id"] 
+                dir_name = os.path.join(directory_to_folders, dir, id) 
                 if os.path.exists(dir_name):
                     tree = ET.parse(dir_name)
                 else:
                     continue
 
-                # Extract content for the given subtype from the XML tree
                 content = tree.findall("parameter:Content", name_space)
                 results_discussion = content[0].findall(f"study_record:ENDPOINT_STUDY_RECORD.{subtype}", name_space)
                 tags = check_tag_of_children(results_discussion[0])
                 if results_discussion:
                     nspace = "study_record"
-                    if len(tags) == 0: # If there are no tags left to process, return the current results
+                    if len(tags) == 0: 
                         return {}
                     for tag in set(tags):
-                        element = results_discussion[0].findall(f"{nspace}:{tag}", name_space) # Find all child elements matching the current tag
-                        if len(element) == 0:  # If the element is empty, return the given results
+                        element = results_discussion[0].findall(f"{nspace}:{tag}", name_space) 
+                        if len(element) == 0:  
                             return {}
-                        elif len(element) > 1:  # If we have multiple children we need to iterate over them recursively
+                        elif len(element) > 1:  
                             for elem in element:
                                 tags = check_tag_of_children(elem)
-                        elif element[0]: # If a single element is found, continue processing its children
+                        elif element[0]: 
                             tags = check_tag_of_children(element[0])
                         tags_list.append(tags)
     
@@ -261,11 +258,10 @@ def test_get_topics():
     }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x]  
 
     df = pd.DataFrame()
     code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype, directory_to_folders=directory_to_folders) # Get the code-to-decoded mapping and the list of columns that require decoding
-    # Iterate over each directory in the list, create a manifest DataFrame for the current directory, and get the values for the directory
     for dir in tqdm.tqdm(dir_list):
         manifest_df = create_manifest(
             dir=dir,
@@ -275,20 +271,18 @@ def test_get_topics():
         )
         if len(manifest_df) != 0:
             df = pd.DataFrame()
-            if subtype not in str(manifest_df["subtype"].values): # Check if the subtype is present in the manifest DataFrame and otherwise return an empty DataFrame
+            if subtype not in str(manifest_df["subtype"].values): 
                 return df
             
-            # Iterate over indices of rows in manifest_df that match the specified subtype
             parameter_indices = manifest_df.index[manifest_df["subtype"] == subtype].tolist()
             for indx in parameter_indices:
-                id = manifest_df.at[indx, "long_id"] # Get the 'long_id' from the manifest DataFrame
-                dir_name = os.path.join(directory_to_folders, dir, id) # Construct the path to the directory containing the XML file with the long_id
+                id = manifest_df.at[indx, "long_id"] 
+                dir_name = os.path.join(directory_to_folders, dir, id) 
                 if os.path.exists(dir_name):
                     tree = ET.parse(dir_name)
                 else:
                     continue
 
-                # Extract content for the given subtype from the XML tree
                 content = tree.findall("parameter:Content", name_space)
                 results_discussion = content[0].findall(f"study_record:ENDPOINT_STUDY_RECORD.{subtype}", name_space)
                 tags = check_tag_of_children(results_discussion[0])
@@ -320,12 +314,11 @@ def test_get_values():
     }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x] 
 
-    list_of_dfs: List[pd.DataFrame] = []
     df = pd.DataFrame()
     code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype, directory_to_folders=directory_to_folders) # Get the code-to-decoded mapping and the list of columns that require decoding
-    # Iterate over each directory in the list, create a manifest DataFrame for the current directory, and get the values for the directory
+
     for dir in tqdm.tqdm(dir_list):
         manifest_df = create_manifest(
             dir=dir,
@@ -336,21 +329,18 @@ def test_get_values():
         if len(manifest_df) != 0:
 
             df = pd.DataFrame()
-            if subtype not in str(manifest_df["subtype"].values): # Check if the subtype is present in the manifest DataFrame and otherwise return an empty DataFrame
+            if subtype not in str(manifest_df["subtype"].values): 
                 return df
             
-            # Iterate over indices of rows in manifest_df that match the specified subtype
             parameter_indices = manifest_df.index[manifest_df["subtype"] == subtype].tolist()
             for indx in parameter_indices:
-                manifest_info = manifest_df[manifest_df.index == indx].to_dict("records")[0]
-                id = manifest_df.at[indx, "long_id"] # Get the 'long_id' from the manifest DataFrame
-                dir_name = os.path.join(directory_to_folders, dir, id) # Construct the path to the directory containing the XML file with the long_id
+                id = manifest_df.at[indx, "long_id"] 
+                dir_name = os.path.join(directory_to_folders, dir, id) 
                 if os.path.exists(dir_name):
                     tree = ET.parse(dir_name)
                 else:
                     continue
 
-                # Extract content for the given subtype from the XML tree
                 content = tree.findall("parameter:Content", name_space)
                 results_discussion = content[0].findall(f"study_record:ENDPOINT_STUDY_RECORD.{subtype}", name_space)
                 tags = check_tag_of_children(results_discussion[0])
@@ -397,18 +387,10 @@ def test_get_values():
 
 def test_get_code_to_decode(): 
     subtype="AcuteToxicityInhalation"
-    name_space = {
-        "manifest": "http://iuclid6.echa.europa.eu/namespaces/manifest/v1",
-        "parameter": "http://iuclid6.echa.europa.eu/namespaces/platform-container/v1",
-        "study_record": f"http://iuclid6.echa.europa.eu/namespaces/ENDPOINT_STUDY_RECORD-{subtype}/7.0",
-        "xsl": "http://www.w3.org/1999/XSL/Transform",
-    }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x]  
 
-    list_of_dfs: List[pd.DataFrame] = []
-    df = pd.DataFrame()
     code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype, directory_to_folders=directory_to_folders)
 
     sub_col_name_decode_correct = ['endpoint', 'studyresulttype', 'purposeflag', 'reliability', 'rationalreliability', 'datawaiving', 'reasonpurpose', 'reasonpurpose', 'dataaccess', 'dataprotectionclaimed', 'qualifier', 'guideline', 'deviation', 'glpcompliancestatement', 'testtype', 'limittest', 'species', 'strain', 'sex', 'routeofadministration', 'typeofinhalationexposure', 'vehicle', 'analyticalverificationoftestatmosphereconcentrations', 'controlanimals', 'sex', 'endpoint', 'basedon', 'remarksonresults', 'clinicalsigns', 'type', 'interpretationofresults']
@@ -437,6 +419,74 @@ def test_get_code_to_decode():
     assert code_to_decoded['2195'] == 'not classified'
 
 
+def test_get_values_for_dir():
+    subtype="AcuteToxicityInhalation"
+    name_space = {
+        "manifest": "http://iuclid6.echa.europa.eu/namespaces/manifest/v1",
+        "parameter": "http://iuclid6.echa.europa.eu/namespaces/platform-container/v1",
+        "study_record": f"http://iuclid6.echa.europa.eu/namespaces/ENDPOINT_STUDY_RECORD-{subtype}/7.0",
+        "xsl": "http://www.w3.org/1999/XSL/Transform",
+    }
+    directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
+    dir_list = os.listdir(directory_to_folders)
+    dir_list = [x for x in dir_list if "." not in x]  
+    list_of_dfs: List[pd.DataFrame] = []
+    df = pd.DataFrame()
+    code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype, directory_to_folders=directory_to_folders) # Get the code-to-decoded mapping and the list of columns that require decoding
+    for dir in tqdm.tqdm(dir_list):
+        manifest_df = create_manifest(
+            dir=dir,
+            name_space=name_space,
+            directory_to_folders=directory_to_folders,
+            subtype=subtype,
+        )
+        if len(manifest_df) != 0:
+            df = get_values_for_dir(
+                name_space=name_space,
+                dir=dir,
+                directory_to_folders=directory_to_folders,
+                manifest_df=manifest_df,
+                subtype=subtype,
+                code_to_decoded=code_to_decoded,
+                sub_col_name_decode=sub_col_name_decode,
+            )
+    assert list(df['subtype']) == ['AcuteToxicityInhalation', 'AcuteToxicityInhalation']
+    assert list(df['long_id']) == ['fef04878-270d-40eb-9d42-61512bb6649d_f6fbb0ad-2581-47be-b240-9a62480b1516.i6d', 'fef04878-270d-40eb-9d42-61512bb6649d_f6fbb0ad-2581-47be-b240-9a62480b1516.i6d']
+    assert list(df['chemical_name']) == ['Propanoic acid, 2-(4-hydroxyphenoxy)-, sodium salt (1:1), (2R)-', 'Propanoic acid, 2-(4-hydroxyphenoxy)-, sodium salt (1:1), (2R)-']
+    assert list(df['iupac_name']) == ['sodium (2R)-2-(4-hydroxyphenoxy)propanoate', 'sodium (2R)-2-(4-hydroxyphenoxy)propanoate']
+    assert list(df['cas']) == ['133647-88-8', '133647-88-8']
+    assert list(df['inventory_num']) == ['603-758-6', '603-758-6']
+    assert list(df['ref_iupac_name']) == ['(R)-2-(4-Hydroxyphenoxy)propanoic acid, Propanoic acid, 2-(4-hydroxyphenoxy)-, (2R)-, 94050-90-5, 407-960-3', '(R)-2-(4-Hydroxyphenoxy)propanoic acid, Propanoic acid, 2-(4-hydroxyphenoxy)-, (2R)-, 94050-90-5, 407-960-3']
+    assert list(df['ref_cas']) == ['None, None, 94050-90-5, None', 'None, None, 94050-90-5, None']
+    assert list(df['ref_inventory_num']) == ['None, None, None, 407-960-3', 'None, None, None, 407-960-3']
+    assert list(df['materialsandmethods_limittest_value']) == ['2480', '2480']
+    assert list(df['materialsandmethods_testmaterials_testmaterialinformation']) == ['b85ee34c-a1d6-4937-9a7e-ab8383703d60/f6fbb0ad-2581-47be-b240-9a62480b1516', 'b85ee34c-a1d6-4937-9a7e-ab8383703d60/f6fbb0ad-2581-47be-b240-9a62480b1516']
+    assert list(df['materialsandmethods_testtype_value']) == ['1578', '1578']
+    assert list(df['materialsandmethods_administrationexposure_routeofadministration_value']) == ['1993', '1993']
+    assert list(df['materialsandmethods_administrationexposure_typeofinhalationexposure_value']) == ['2191', '2191']
+    assert list(df['materialsandmethods_glpcompliancestatement_value']) == ['2480', '2480']
+    assert list(df['materialsandmethods_testanimals_sex_value']) == ['2052', '2052']
+    assert list(df['materialsandmethods_testanimals_species_value']) == ['3485', '3485']
+    assert list(df['materialsandmethods_testanimals_strain_value']) == ['3574', '3574']
+    assert list(df['materialsandmethods_guideline_guideline_value']) == ['1251, 675, 599', '1251, 675, 599']
+    assert list(df['materialsandmethods_guideline_qualifier_value']) == ['1680, 1680, 1680', '1680, 1680, 1680']
+    assert list(df['materialsandmethods_guideline_deviation_value']) == ['2158, 2158, 2158', '2158, 2158, 2158']
+    assert list(df['applicantsummaryandconclusion_interpretationofresults_value']) == ['2195', '2195']
+    assert list(df['administrativedata_reliability_value']) == ['18', '18']
+    assert list(df['administrativedata_purposeflag_value']) == ['921', '921']
+    assert list(df['administrativedata_endpoint_value']) == ['2677', '2677']
+    assert list(df['administrativedata_studyresulttype_value']) == ['62035', '62035']
+    assert list(df['resultsanddiscussion_effectlevels_effectlevel_lowerqualifier']) == ['>', '>']
+    assert list(df['resultsanddiscussion_effectlevels_keyresult']) == ['false', 'false']
+    assert list(df['resultsanddiscussion_effectlevels_sex_value']) == ['2052', '2052']
+    assert list(df['resultsanddiscussion_effectlevels_endpoint_value']) == ['922', '926']
+    assert list(df['resultsanddiscussion_effectlevels_exposureduration_value']) == ['4', '4']
+    assert list(df['resultsanddiscussion_effectlevels_exposureduration_unitcode']) == ['1976', '1976']
+    assert list(df['resultsanddiscussion_effectlevels_effectlevel_lowervalue']) == ['1.84', '1.84']
+    assert list(df['resultsanddiscussion_effectlevels_effectlevel_unitcode']) == ['2100', '2100']
+    assert list(df['resultsanddiscussion_effectlevels_basedon_value']) == ['1754', '1754']
+
+
 def test_create_manifest():
     subtype="AcuteToxicityInhalation"
     name_space = {
@@ -447,7 +497,7 @@ def test_create_manifest():
     }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x] 
     for dir in dir_list:
         manifest_df = create_manifest(
             dir=dir,
@@ -483,6 +533,7 @@ def test_create_manifest():
     assert manifest_df.iloc[0]['ref_cas'] == "None, None, 94050-90-5, None"
     assert manifest_df.iloc[0]['ref_inventory_num'] == "None, None, None, 407-960-3"
 
+
 def test_get_values_for_dir_list():
     subtype="AcuteToxicityInhalation"
     name_space = {
@@ -493,7 +544,7 @@ def test_get_values_for_dir_list():
     }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x]  
     df = get_values_for_dir_list(
             name_space=name_space,
             dir_list=dir_list,
@@ -585,21 +636,19 @@ def test_rename_cols():
     }
     directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
     dir_list = os.listdir(directory_to_folders)
-    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+    dir_list = [x for x in dir_list if "." not in x] 
     df = get_values_for_dir_list(
         name_space=name_space,
         dir_list=dir_list,
         directory_to_folders=directory_to_folders,
         subtype=subtype,
     )
-    # Separate and sort columns: keep the first 9 columns unchanged and sort the rest
     identifier_columns = df.columns[:9].tolist()
     unsorted_columns = df.columns[9:].tolist()
     sorted_columns = sorted(unsorted_columns)
     sorted_columns = identifier_columns + sorted_columns
     df = df[sorted_columns]
 
-    # Rename columns and convert units
     df = rename_cols(df=df) 
 
     column_list  = list(df.columns)
@@ -723,7 +772,8 @@ def test_value_function(df_value):
         assert unit_list == solution['units'][idx]
         assert value_list == [1.5, 2.0]
 
-def test_convert_units_given_unit_dicts(conversion_df, conversion_df_lower_upper): # TODO
+
+def test_convert_units_given_unit_dicts(conversion_df, conversion_df_lower_upper):
     unit_to_calc = {'kg': 1000, 'lb': 0.453592, 'm': 100, 'cm': 10}
     unit_to_new_unit = {'kg': 'g', 'lb': 'kg', 'm': 'cm', 'cm': 'mm'}
     df = convert_units_given_unit_dicts(
@@ -745,11 +795,42 @@ def test_convert_units_given_unit_dicts(conversion_df, conversion_df_lower_upper
     assert list(df["value_col_lowervalue"]) == ['1000.0, 2000.0', '0.453592', '100', '10']
     assert list(df["value_col_uppervalue"]) == ['2000.0, 3000.0', '0.907184', '300', '20']
 
-def test_convert_units(): # TODO
-    return 
 
-def test_create_connection(): # TODO
-    return 
+def test_convert_units(df_conversion): 
+    df_old = df_conversion.copy()
+    df = convert_units(df_conversion)
+    
+    assert df["pc_unit"].tolist() == ["log Koc", "log Kd", "log Kow", "log Pow"]
+    for pc_calc, pc_old in zip(df["pc_lowervalue"], df_old["pc_lowervalue"]):
+        pc_old = pd.to_numeric(pc_old, errors='coerce')
+        assert float(pc_calc) == math.log(pc_old, 10)
+    
+    assert df["temperature_unit"].tolist() == ["°C", "°C", "°C", "°C"]
+    assert df["temperature_value"].tolist() == ['26.85', '25.0', '25.0', '0.0']
+    
+    assert df["henrys_law_constant_h_h_unit"].tolist() == ["log10 [-]", "log10 [-]", "log10 [-]", "log10 [-]"]
+    assert df.loc[0, "henrys_law_constant_h_h_lowervalue"] == str(np.log10(df_old.loc[0, "henrys_law_constant_h_h_lowervalue"] /(df_old.loc[0, "henrys_law_constant_h_temp_value"] + 273.15)/ 8.314))
+    assert df.loc[1, "henrys_law_constant_h_h_lowervalue"] == str(np.log10(df_old.loc[1, "henrys_law_constant_h_h_lowervalue"] * 1.01325 * 1.8 /(df_old.loc[1, "henrys_law_constant_h_temp_value"] + 273.15)/ 8.314))
+    assert df.loc[2, "henrys_law_constant_h_h_lowervalue"] == str(np.log10(df_old.loc[2, "henrys_law_constant_h_h_lowervalue"] * 101325 /(df_old.loc[2, "henrys_law_constant_h_temp_value"] + 273.15)/ 8.314))
+    assert df.loc[3, "henrys_law_constant_h_h_lowervalue"] == str(np.log10(df_old.loc[3, "henrys_law_constant_h_h_lowervalue"] /(df_old.loc[3, "henrys_law_constant_h_temp_value"] + 273.15)/ 8.314))
+    assert df.loc[0, "henrys_law_constant_h_h_uppervalue"] == str(np.log10(df_old.loc[0, "henrys_law_constant_h_h_uppervalue"] /(df_old.loc[0, "henrys_law_constant_h_temp_value"] + 273.15)/ 8.314))
+    assert df.loc[1, "henrys_law_constant_h_h_uppervalue"] == str(np.log10(df_old.loc[1, "henrys_law_constant_h_h_uppervalue"] * 1.01325 * 1.8 /(df_old.loc[1, "henrys_law_constant_h_temp_value"] + 273.15)/ 8.314))
+    assert df.loc[2, "henrys_law_constant_h_h_uppervalue"] == str(np.log10(df_old.loc[2, "henrys_law_constant_h_h_uppervalue"] * 101325 /(df_old.loc[2, "henrys_law_constant_h_temp_value"] + 273.15)/ 8.314))
+    assert df.loc[3, "henrys_law_constant_h_h_uppervalue"] == str(np.log10(df_old.loc[3, "henrys_law_constant_h_h_uppervalue"] /(df_old.loc[3, "henrys_law_constant_h_temp_value"] + 273.15)/ 8.314))
+    
+    assert df["time_unit"].tolist() == ["h", "h", "h", "h"]
+    assert df["time_value"].tolist() == ['1.0', '1.0', '1', '24']
+
+
+def test_create_connection(tmpdir): 
+    db_file = tmpdir.join("test.db")
+    conn = create_connection(str(db_file))
+    assert conn is not None
+    assert isinstance(conn, sqlite3.Connection)
+    conn.close()
+
+    conn = create_connection("/invalid/path/to/db.db")
+    assert conn is None
 
 
 

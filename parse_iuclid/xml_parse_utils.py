@@ -704,6 +704,8 @@ def convert_units_given_unit_dicts(df: pd.DataFrame, value_col: str, unit_col: s
                         val_list_upper[index] = val_list_upper[index] * calc
                     unit_list[index] = unit_to_new_unit[unit] # Update the unit to the new unit name
             # Update the DataFrame with the converted values and units
+            df[col_lower] = df[col_lower].astype(str)
+            df[col_upper] = df[col_upper].astype(str)
             df.at[idx, col_lower] = ', '.join(map(str, val_list_lower))
             df.at[idx, col_upper] = ', '.join(map(str, val_list_upper))
             df.at[idx, unit_col] = ', '.join(unit_list)
@@ -718,6 +720,7 @@ def convert_units_given_unit_dicts(df: pd.DataFrame, value_col: str, unit_col: s
                     value_list[index] = value_list[index] * calc
                     unit_list[index] = unit_to_new_unit[unit] # Update the unit to the new unit name
             # Update the DataFrame with the converted values and units
+            df[val_col] = df[val_col].astype(str)
             df.at[idx, val_col] = ', '.join(map(str, value_list))
             df.at[idx, unit_col] = ', '.join(unit_list)
     return df
@@ -735,7 +738,7 @@ def convert_units(df: pd.DataFrame) -> pd.DataFrame:
     value_cols2 = [col.replace('_type_value', '_value') for col in unitcode_cols2]
     unitcode_cols = unitcode_cols1 + unitcode_cols2
     value_cols = value_cols1 + value_cols2
-    
+
     # Iterate over each unit and corresponding value column to apply conversions
     for unit_col, value_col in zip(unitcode_cols, value_cols):
 
@@ -764,8 +767,10 @@ def convert_units(df: pd.DataFrame) -> pd.DataFrame:
                                 unit_list[index] = 'log Pow'     
                             elif unit == "Kp":
                                 unit_list[index] = 'log Kp'
-                    df.at[idx, value_col] = ', '.join(map(str, val_list_lower))
-                    df.at[idx, value_col] = ', '.join(map(str, val_list_upper))
+                    df[value_lower] = df[value_lower].astype(str)
+                    df[value_upper] = df[value_upper].astype(str)
+                    df.at[idx, value_lower] = ', '.join(map(str, val_list_lower))
+                    df.at[idx, value_upper] = ', '.join(map(str, val_list_upper))
                     df.at[idx, unit_col] = ', '.join(unit_list)
 
         # Convert temperature units to Celsius (°C)
@@ -783,8 +788,10 @@ def convert_units(df: pd.DataFrame) -> pd.DataFrame:
                             val_list_lower[index] = (val_list_lower[index] - 32) * 5/9
                             val_list_upper[index] = (val_list_upper[index] - 32) * 5/9
                         unit_list[index] = '°C'
-                    df.at[idx, value_col] = ', '.join(map(str, val_list_lower))
-                    df.at[idx, value_col] = ', '.join(map(str, val_list_upper))
+                    df[value_lower] = df[value_lower].astype(str)
+                    df[value_upper] = df[value_upper].astype(str)
+                    df.at[idx, value_lower] = ', '.join(map(str, val_list_lower))
+                    df.at[idx, value_upper] = ', '.join(map(str, val_list_upper))
                     df.at[idx, unit_col] = ', '.join(unit_list)
             else:
                 temperature_col = value_col + "_value"
@@ -792,11 +799,12 @@ def convert_units(df: pd.DataFrame) -> pd.DataFrame:
                     value_list, unit_list = value_function(unit_col, temperature_col, row)
                     for index, unit  in enumerate(unit_list):
                         if unit == "K":
-                            value_list[index] = value_list[index] - 273.15
+                            value_list[index] = round(value_list[index] - 273.15, 2)
                         elif unit == "°F":
-                            value_list[index] = (value_list[index] - 32) * 5/9
+                            value_list[index] = round((value_list[index] - 32) * 5/9, 2)
                         unit_list[index] = '°C'
-                    df.at[idx, value_col] = ', '.join(map(str, value_list))
+                    df[temperature_col] = df[temperature_col].astype(str)
+                    df.at[idx, temperature_col] = ', '.join(map(str, value_list))
                     df.at[idx, unit_col] = ', '.join(unit_list)
         
         # Convert Henry's Law constants
@@ -832,8 +840,10 @@ def convert_units(df: pd.DataFrame) -> pd.DataFrame:
                             val_list_lower[index] = np.log10(val_list_lower[index] * 101325 /(temp_val + 273.15)/ 8.314)
                             val_list_upper[index] = np.log10(val_list_upper[index] * 101325 /(temp_val + 273.15)/ 8.314)
                             unit_list[index] = 'log10 [-]'
-                df.at[idx, value_col] = ', '.join(map(str, val_list_lower))
-                df.at[idx, value_col] = ', '.join(map(str, val_list_upper))
+                df[lower_value] = df[lower_value].astype(str)
+                df[upper_value] = df[upper_value].astype(str)
+                df.at[idx, lower_value] = ', '.join(map(str, val_list_lower))
+                df.at[idx, upper_value] = ', '.join(map(str, val_list_upper))
                 df.at[idx, unit_col] = ', '.join(unit_list)
 
         # Convert various time units to hours (h)
@@ -842,6 +852,7 @@ def convert_units(df: pd.DataFrame) -> pd.DataFrame:
                 "ms": 1/(60*60*1000),
                 "s": 1/(60*60),
                 "min": 1/60,
+                "h": 1,
                 "d": 24,
                 "wk": 24 * 7,
                 "mo": 24 * 30,
@@ -851,6 +862,7 @@ def convert_units(df: pd.DataFrame) -> pd.DataFrame:
                 "ms": 'h',
                 "s": 'h',
                 "min": 'h',
+                "h": 'h',
                 "d": 'h',
                 "wk": 'h',
                 "mo": 'h',
