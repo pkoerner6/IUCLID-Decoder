@@ -30,7 +30,7 @@ The retrieve_reach_study_results function accepts four arguments—two required 
 ### Function Output
 The function does not return any value. Instead, it saves the retrieved data from the REACH study results dossiers into an SQLite database and, optionally, an Excel file.
 
-### Example Use
+### Example Usage
 ```bash
 from parse_iuclid import retrieve_reach_study_results
 
@@ -44,3 +44,24 @@ retrieve_reach_study_results(
     save_to_excel = True
 )
 ```
+
+
+## Community Guidelines
+We welcome your contributions, feedback, and inquiries! Please follow these guidelines when engaging with our project.
+
+### Contributing to the Software
+We greatly appreciate code contributions and encourage you to submit new code through GitHub pull requests. This process helps maintain a clear record of code authorship, tracks and archives the code review workflow, and allows us to benefit from our continuous integration (CI) setup, which automates testing of newly added code.
+
+#### Code Submission: 
+Submit your code via GitHub pull requests. 
+
+#### Copyright and Licensing:
+By contributing code, you implicitly transfer copyright to the project. If you need an exception, please indicate this when creating a pull request.
+
+### Reporting Issues
+If you encounter any incorrect, unintuitive, or undocumented behavior, please report it using the GitHub issue tracker. This helps us address bugs and improve the software.
+Clearly describe the issue, including steps to reproduce it, expected behavior, and any relevant logs or screenshots.
+
+### Seeking Support
+For questions about understanding, using, or extending ```parse_iuclid```, we encourage you to use the GitHub Discussions feature. This platform is better suited for support queries than the issue tracker.
+
