@@ -10,24 +10,24 @@ import xml.etree.ElementTree as ET
 from collections import defaultdict
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from iuclid_parser.iuclid_parser_utils import unzip_i6z_files
-from iuclid_parser.iuclid_parser_utils import check_if_exists
-from iuclid_parser.iuclid_parser_utils import find_info_in_manifest_per_doc
-from iuclid_parser.iuclid_parser_utils import find_info_in_manifest_per_doc_reference
-from iuclid_parser.iuclid_parser_utils import create_manifest_df
-from iuclid_parser.iuclid_parser_utils import check_tag_of_children
-from iuclid_parser.iuclid_parser_utils import get_topics
-from iuclid_parser.iuclid_parser_utils import get_values
-from iuclid_parser.iuclid_parser_utils import get_code_to_decode
-from iuclid_parser.iuclid_parser_utils import get_values_for_dir
-from iuclid_parser.iuclid_parser_utils import create_manifest
-from iuclid_parser.iuclid_parser_utils import get_values_for_dir_list
-from iuclid_parser.iuclid_parser_utils import rename_cols
-from iuclid_parser.iuclid_parser_utils import lower_upper_function
-from iuclid_parser.iuclid_parser_utils import value_function
-from iuclid_parser.iuclid_parser_utils import convert_units_given_unit_dicts
-from iuclid_parser.iuclid_parser_utils import convert_units
-from iuclid_parser.iuclid_parser_utils import create_connection
+from iuclid_decoder.iuclid_parser_utils import unzip_i6z_files
+from iuclid_decoder.iuclid_parser_utils import check_if_exists
+from iuclid_decoder.iuclid_parser_utils import find_info_in_manifest_per_doc
+from iuclid_decoder.iuclid_parser_utils import find_info_in_manifest_per_doc_reference
+from iuclid_decoder.iuclid_parser_utils import create_manifest_df
+from iuclid_decoder.iuclid_parser_utils import check_tag_of_children
+from iuclid_decoder.iuclid_parser_utils import get_topics
+from iuclid_decoder.iuclid_parser_utils import get_values
+from iuclid_decoder.iuclid_parser_utils import get_code_to_decode
+from iuclid_decoder.iuclid_parser_utils import get_values_for_dir
+from iuclid_decoder.iuclid_parser_utils import create_manifest
+from iuclid_decoder.iuclid_parser_utils import get_values_for_dir_list
+from iuclid_decoder.iuclid_parser_utils import rename_cols
+from iuclid_decoder.iuclid_parser_utils import lower_upper_function
+from iuclid_decoder.iuclid_parser_utils import value_function
+from iuclid_decoder.iuclid_parser_utils import convert_units_given_unit_dicts
+from iuclid_decoder.iuclid_parser_utils import convert_units
+from iuclid_decoder.iuclid_parser_utils import create_connection
 
 
 def test_unzip_i6z_files():
