@@ -678,7 +678,7 @@ def value_function(unit_col: str, val_col: str, row):
     values = str(row[val_col])
     unit_list = [unit.strip() for unit in units.split(',')]
     value_list = [pd.to_numeric(value.strip(), errors='coerce') for value in values.split(',')]
-    if len(value_list) == len(unit_list):
+    if len(value_list) != len(unit_list):
         log.warn("Not for every value a unit was provided!", values=value_list, units=unit_list)
     return value_list, unit_list
 

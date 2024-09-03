@@ -723,7 +723,7 @@ def test_value_function(df_value):
         assert unit_list == solution['units'][idx]
         assert value_list == [1.5, 2.0]
 
-def test_convert_units_given_unit_dicts(conversion_df): # TODO
+def test_convert_units_given_unit_dicts(conversion_df, conversion_df_lower_upper): # TODO
     unit_to_calc = {'kg': 1000, 'lb': 0.453592, 'm': 100, 'cm': 10}
     unit_to_new_unit = {'kg': 'g', 'lb': 'kg', 'm': 'cm', 'cm': 'mm'}
     df = convert_units_given_unit_dicts(
@@ -732,11 +732,18 @@ def test_convert_units_given_unit_dicts(conversion_df): # TODO
         unit_col="unit_col", 
         unit_to_calc=unit_to_calc, 
         unit_to_new_unit=unit_to_new_unit)
-    print(list(df["unit_col"]))
-    print(list(df["value_col_value"]))
     assert list(df["unit_col"]) == ['g, g', 'kg', 'cm', 'mm']
     assert list(df["value_col_value"]) == ['1000.0, 2000.0', '0.453592', '100', '10']
 
+    df = convert_units_given_unit_dicts(
+        df=conversion_df_lower_upper, 
+        value_col="value_col", 
+        unit_col="unit_col", 
+        unit_to_calc=unit_to_calc, 
+        unit_to_new_unit=unit_to_new_unit)
+    assert list(df["unit_col"]) == ['g, g', 'kg', 'cm', 'mm']
+    assert list(df["value_col_lowervalue"]) == ['1000.0, 2000.0', '0.453592', '100', '10']
+    assert list(df["value_col_uppervalue"]) == ['2000.0, 3000.0', '0.907184', '300', '20']
 
 def test_convert_units(): # TODO
     return 
