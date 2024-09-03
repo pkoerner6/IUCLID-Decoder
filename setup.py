@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='retrieve_reach_study_results',
+    name='decrypt_reach_results',
     version='0.1.0',
     description='A package for downloading REACH study results',
     author='Paulina Körner, Juliane Glüge',

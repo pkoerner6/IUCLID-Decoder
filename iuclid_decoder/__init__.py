@@ -27,4 +27,4 @@ retrieve_reach_study_results(
 )
 """
 
-from .core import retrieve_reach_study_results
+from .core import decrypt_reach_results

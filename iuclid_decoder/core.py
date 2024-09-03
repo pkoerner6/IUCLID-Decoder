@@ -3,15 +3,15 @@ import os
 import pandas as pd
 import structlog
 from typing import List
-from .xml_parse_utils import unzip_i6z_files
-from .xml_parse_utils import get_values_for_dir_list
-from .xml_parse_utils import rename_cols
-from .xml_parse_utils import convert_units
-from .xml_parse_utils import create_connection
+from .iuclid_parser_utils import unzip_i6z_files
+from .iuclid_parser_utils import get_values_for_dir_list
+from .iuclid_parser_utils import rename_cols
+from .iuclid_parser_utils import convert_units
+from .iuclid_parser_utils import create_connection
 
 log = structlog.get_logger()
 
-def retrieve_reach_study_results(
+def decrypt_reach_results( # retrieve_reach_study_results(
     path_dossiers: str,
     path_to_save: str,
     subtypes: List[str] = None,
@@ -144,5 +144,4 @@ def retrieve_reach_study_results(
                 if count <= 31:
                     df.to_excel(writer, sheet_name=subtype, index=False)
 
-          
-            
+
