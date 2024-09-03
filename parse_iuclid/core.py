@@ -83,8 +83,6 @@ def retrieve_reach_study_results(
             "WaterSolubility",
         ]
  
-    print(len(subtypes)) # TODO
-
     dataframes = {}
 
     # Iterate over each subtype and retrieve the information from the IUCLID files. Process the data and save it to a SQL database.
@@ -135,11 +133,11 @@ def retrieve_reach_study_results(
             database = os.path.join(current_directory, f"{path_to_save}.db")
             conn = create_connection(database)
             df.to_sql(subtype, conn, if_exists='replace', index=False)
-        else: # TODO
-            print("Empty dataframe!!") # TODO
 
     # Save the dataframe additionally to excel
     if save_to_excel:
+        if len(subtypes) > 31:
+            log.warn("You have selected more than 31 subtypes. Only the first 31 will be saved to the Excel file!")
         excel_path = os.path.join(os.getcwd(), f"{path_to_save}.xlsx")
         with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
             for count, (subtype, df) in enumerate(dataframes.items()):

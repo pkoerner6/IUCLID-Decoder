@@ -1,6 +1,7 @@
 import sys
 import os
 import pandas as pd
+import numpy as np
 import tqdm
 # from collections import defaultdict
 from typing import List, Dict, Tuple, Set
@@ -190,17 +191,251 @@ def test_create_manifest_df():
     assert manifest_df.iloc[0]['ref_cas'] == "None, None, 94050-90-5, None"
     assert manifest_df.iloc[0]['ref_inventory_num'] == "None, None, None, 407-960-3"
 
-def test_check_tag_of_children(): # TODO
-    return 
+def test_check_tag_of_children(): 
+    tags_list = []
 
-def test_get_topics(): # TODO
-    return 
+    subtype="AcuteToxicityInhalation"
+    name_space = {
+        "manifest": "http://iuclid6.echa.europa.eu/namespaces/manifest/v1",
+        "parameter": "http://iuclid6.echa.europa.eu/namespaces/platform-container/v1",
+        "study_record": f"http://iuclid6.echa.europa.eu/namespaces/ENDPOINT_STUDY_RECORD-{subtype}/7.0",
+        "xsl": "http://www.w3.org/1999/XSL/Transform",
+    }
+    directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
+    dir_list = os.listdir(directory_to_folders)
+    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
 
-def test_get_values(): # TODO
-    return 
+    # Iterate over each directory in the list, create a manifest DataFrame for the current directory, and get the values for the directory
+    for dir in tqdm.tqdm(dir_list):
+        manifest_df = create_manifest(
+            dir=dir,
+            name_space=name_space,
+            directory_to_folders=directory_to_folders,
+            subtype=subtype,
+        )
+        if len(manifest_df) != 0:
+            df = pd.DataFrame()
+            if subtype not in str(manifest_df["subtype"].values): # Check if the subtype is present in the manifest DataFrame and otherwise return an empty DataFrame
+                return df
+            
+            # Iterate over indices of rows in manifest_df that match the specified subtype
+            parameter_indices = manifest_df.index[manifest_df["subtype"] == subtype].tolist()
+            for indx in parameter_indices:
+                id = manifest_df.at[indx, "long_id"] # Get the 'long_id' from the manifest DataFrame
+                dir_name = os.path.join(directory_to_folders, dir, id) # Construct the path to the directory containing the XML file with the long_id
+                if os.path.exists(dir_name):
+                    tree = ET.parse(dir_name)
+                else:
+                    continue
 
-def test_get_code_to_decode(): # TODO
-    return 
+                # Extract content for the given subtype from the XML tree
+                content = tree.findall("parameter:Content", name_space)
+                results_discussion = content[0].findall(f"study_record:ENDPOINT_STUDY_RECORD.{subtype}", name_space)
+                tags = check_tag_of_children(results_discussion[0])
+                if results_discussion:
+                    nspace = "study_record"
+                    if len(tags) == 0: # If there are no tags left to process, return the current results
+                        return {}
+                    for tag in set(tags):
+                        element = results_discussion[0].findall(f"{nspace}:{tag}", name_space) # Find all child elements matching the current tag
+                        if len(element) == 0:  # If the element is empty, return the given results
+                            return {}
+                        elif len(element) > 1:  # If we have multiple children we need to iterate over them recursively
+                            for elem in element:
+                                tags = check_tag_of_children(elem)
+                        elif element[0]: # If a single element is found, continue processing its children
+                            tags = check_tag_of_children(element[0])
+                        tags_list.append(tags)
+    
+    tags_list_correct = [['Reference'], ['Guideline', 'GLPComplianceStatement', 'TestType', 'LimitTest', 'TestMaterials', 'TestAnimals', 'AdministrationExposure'], ['InterpretationOfResults'], ['EffectLevels'], ['Endpoint', 'StudyResultType', 'PurposeFlag', 'Reliability']]
+    assert sorted(tags_list) == sorted(tags_list_correct)
+
+
+def test_get_topics(): 
+    subtype="AcuteToxicityInhalation"
+    name_space = {
+        "manifest": "http://iuclid6.echa.europa.eu/namespaces/manifest/v1",
+        "parameter": "http://iuclid6.echa.europa.eu/namespaces/platform-container/v1",
+        "study_record": f"http://iuclid6.echa.europa.eu/namespaces/ENDPOINT_STUDY_RECORD-{subtype}/7.0",
+        "xsl": "http://www.w3.org/1999/XSL/Transform",
+    }
+    directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
+    dir_list = os.listdir(directory_to_folders)
+    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+
+    df = pd.DataFrame()
+    code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype, directory_to_folders=directory_to_folders) # Get the code-to-decoded mapping and the list of columns that require decoding
+    # Iterate over each directory in the list, create a manifest DataFrame for the current directory, and get the values for the directory
+    for dir in tqdm.tqdm(dir_list):
+        manifest_df = create_manifest(
+            dir=dir,
+            name_space=name_space,
+            directory_to_folders=directory_to_folders,
+            subtype=subtype,
+        )
+        if len(manifest_df) != 0:
+            df = pd.DataFrame()
+            if subtype not in str(manifest_df["subtype"].values): # Check if the subtype is present in the manifest DataFrame and otherwise return an empty DataFrame
+                return df
+            
+            # Iterate over indices of rows in manifest_df that match the specified subtype
+            parameter_indices = manifest_df.index[manifest_df["subtype"] == subtype].tolist()
+            for indx in parameter_indices:
+                id = manifest_df.at[indx, "long_id"] # Get the 'long_id' from the manifest DataFrame
+                dir_name = os.path.join(directory_to_folders, dir, id) # Construct the path to the directory containing the XML file with the long_id
+                if os.path.exists(dir_name):
+                    tree = ET.parse(dir_name)
+                else:
+                    continue
+
+                # Extract content for the given subtype from the XML tree
+                content = tree.findall("parameter:Content", name_space)
+                results_discussion = content[0].findall(f"study_record:ENDPOINT_STUDY_RECORD.{subtype}", name_space)
+                tags = check_tag_of_children(results_discussion[0])
+                if results_discussion:
+                    nspace = "study_record"
+                    results = get_values(
+                        previous_element=results_discussion,
+                        name_space=name_space,
+                        nspace=nspace,
+                        tags=tags,
+                        code_to_decoded=code_to_decoded,
+                        sub_col_name_decode=sub_col_name_decode,
+                        prev_element_str="",
+                        results={},
+                        subtype=subtype,
+                    )
+                    topics = get_topics(results)
+
+    assert sorted(topics) == sorted(['materialsandmethods', 'applicantsummaryandconclusion', 'administrativedata', 'resultsanddiscussion'])
+
+
+def test_get_values(): 
+    subtype="AcuteToxicityInhalation"
+    name_space = {
+        "manifest": "http://iuclid6.echa.europa.eu/namespaces/manifest/v1",
+        "parameter": "http://iuclid6.echa.europa.eu/namespaces/platform-container/v1",
+        "study_record": f"http://iuclid6.echa.europa.eu/namespaces/ENDPOINT_STUDY_RECORD-{subtype}/7.0",
+        "xsl": "http://www.w3.org/1999/XSL/Transform",
+    }
+    directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
+    dir_list = os.listdir(directory_to_folders)
+    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+
+    list_of_dfs: List[pd.DataFrame] = []
+    df = pd.DataFrame()
+    code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype, directory_to_folders=directory_to_folders) # Get the code-to-decoded mapping and the list of columns that require decoding
+    # Iterate over each directory in the list, create a manifest DataFrame for the current directory, and get the values for the directory
+    for dir in tqdm.tqdm(dir_list):
+        manifest_df = create_manifest(
+            dir=dir,
+            name_space=name_space,
+            directory_to_folders=directory_to_folders,
+            subtype=subtype,
+        )
+        if len(manifest_df) != 0:
+
+            df = pd.DataFrame()
+            if subtype not in str(manifest_df["subtype"].values): # Check if the subtype is present in the manifest DataFrame and otherwise return an empty DataFrame
+                return df
+            
+            # Iterate over indices of rows in manifest_df that match the specified subtype
+            parameter_indices = manifest_df.index[manifest_df["subtype"] == subtype].tolist()
+            for indx in parameter_indices:
+                manifest_info = manifest_df[manifest_df.index == indx].to_dict("records")[0]
+                id = manifest_df.at[indx, "long_id"] # Get the 'long_id' from the manifest DataFrame
+                dir_name = os.path.join(directory_to_folders, dir, id) # Construct the path to the directory containing the XML file with the long_id
+                if os.path.exists(dir_name):
+                    tree = ET.parse(dir_name)
+                else:
+                    continue
+
+                # Extract content for the given subtype from the XML tree
+                content = tree.findall("parameter:Content", name_space)
+                results_discussion = content[0].findall(f"study_record:ENDPOINT_STUDY_RECORD.{subtype}", name_space)
+                tags = check_tag_of_children(results_discussion[0])
+                if results_discussion:
+                    nspace = "study_record"
+                    results = get_values(
+                        previous_element=results_discussion,
+                        name_space=name_space,
+                        nspace=nspace,
+                        tags=tags,
+                        code_to_decoded=code_to_decoded,
+                        sub_col_name_decode=sub_col_name_decode,
+                        prev_element_str="",
+                        results={},
+                        subtype=subtype,
+                    )
+    assert results['applicantsummaryandconclusion_interpretationofresults_value'] == ['2195']
+    assert results['materialsandmethods_testanimals_strain_value'] == ['3574']
+    assert results['materialsandmethods_testanimals_sex_value'] == ['2052']
+    assert results['materialsandmethods_testanimals_species_value'] == ['3485']
+    assert results['materialsandmethods_guideline_qualifier_value'] == ['1680', '1680', '1680']
+    assert results['materialsandmethods_guideline_guideline_value'] == ['1251', '675', '599']
+    assert results['materialsandmethods_guideline_deviation_value'] == ['2158', '2158', '2158']
+    assert results['materialsandmethods_administrationexposure_routeofadministration_value'] == ['1993']
+    assert results['materialsandmethods_administrationexposure_typeofinhalationexposure_value'] == ['2191']
+    assert results['materialsandmethods_limittest_value'] == ['2480']
+    assert results['materialsandmethods_testtype_value'] == ['1578']
+    assert results['materialsandmethods_glpcompliancestatement_value'] == ['2480']
+    assert results['materialsandmethods_testmaterials_testmaterialinformation'] == ['b85ee34c-a1d6-4937-9a7e-ab8383703d60/f6fbb0ad-2581-47be-b240-9a62480b1516']
+    assert results['resultsanddiscussion_effectlevels_sex_value'] == ['2052', '2052']
+    assert results['resultsanddiscussion_effectlevels_basedon_value'] == ['1754', '1754']
+    assert results['resultsanddiscussion_effectlevels_endpoint_value'] == ['922', '926']
+    assert results['resultsanddiscussion_effectlevels_effectlevel_unitcode'] == ['2100', '2100']
+    assert results['resultsanddiscussion_effectlevels_effectlevel_lowervalue'] == ['1.84', '1.84']
+    assert results['resultsanddiscussion_effectlevels_keyresult'] == ['false', 'false']
+    assert results['resultsanddiscussion_effectlevels_exposureduration_unitcode'] == ['1976', '1976']
+    assert results['resultsanddiscussion_effectlevels_exposureduration_value'] == ['4', '4']
+    assert results['resultsanddiscussion_effectlevels_effectlevel_lowerqualifier'] == ['>']
+    assert results['administrativedata_studyresulttype_value'] == ['62035']
+    assert results['administrativedata_purposeflag_value'] == ['921']
+    assert results['administrativedata_endpoint_value'] == ['2677']
+    assert results['administrativedata_reliability_value'] == ['18']
+
+
+def test_get_code_to_decode(): 
+    subtype="AcuteToxicityInhalation"
+    name_space = {
+        "manifest": "http://iuclid6.echa.europa.eu/namespaces/manifest/v1",
+        "parameter": "http://iuclid6.echa.europa.eu/namespaces/platform-container/v1",
+        "study_record": f"http://iuclid6.echa.europa.eu/namespaces/ENDPOINT_STUDY_RECORD-{subtype}/7.0",
+        "xsl": "http://www.w3.org/1999/XSL/Transform",
+    }
+    directory_to_folders = "tests/reach_study_results_dossiers_23-05-2023_test_unzipped"
+    dir_list = os.listdir(directory_to_folders)
+    dir_list = [x for x in dir_list if "." not in x]  # to eliminate files called ".DS_Store"
+
+    list_of_dfs: List[pd.DataFrame] = []
+    df = pd.DataFrame()
+    code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype, directory_to_folders=directory_to_folders)
+
+    sub_col_name_decode_correct = ['endpoint', 'studyresulttype', 'purposeflag', 'reliability', 'rationalreliability', 'datawaiving', 'reasonpurpose', 'reasonpurpose', 'dataaccess', 'dataprotectionclaimed', 'qualifier', 'guideline', 'deviation', 'glpcompliancestatement', 'testtype', 'limittest', 'species', 'strain', 'sex', 'routeofadministration', 'typeofinhalationexposure', 'vehicle', 'analyticalverificationoftestatmosphereconcentrations', 'controlanimals', 'sex', 'endpoint', 'basedon', 'remarksonresults', 'clinicalsigns', 'type', 'interpretationofresults']
+    assert sorted(sub_col_name_decode) == sorted(sub_col_name_decode_correct)
+    assert code_to_decoded['1976'] == 'h'
+    assert code_to_decoded['2100'] == 'mg/L air (analytical)'
+    assert code_to_decoded['2677'] == 'acute toxicity: inhalation'
+    assert code_to_decoded['62035'] == 'migrated information: read-across from supporting substance (structural analogue or surrogate)'
+    assert code_to_decoded['921'] == 'key study'
+    assert code_to_decoded['18'] == '2 (reliable with restrictions)'
+    assert code_to_decoded['2480'] == 'yes'
+    assert code_to_decoded['1680'] == 'according to guideline'
+    assert code_to_decoded['599'] == 'EPA OTS 798.1150 (Acute inhalation toxicity)'
+    assert code_to_decoded['675'] == 'EU Method B.2 (Acute Toxicity (Inhalation))'
+    assert code_to_decoded['1251'] == 'OECD Guideline 403 (Acute Inhalation Toxicity)'
+    assert code_to_decoded['2158'] == 'no'
+    assert code_to_decoded['1578'] == 'standard acute method'
+    assert code_to_decoded['3485'] == 'rat'
+    assert code_to_decoded['3574'] == 'Wistar'
+    assert code_to_decoded['2052'] == 'male/female'
+    assert code_to_decoded['1993'] == 'inhalation: dust'
+    assert code_to_decoded['2191'] == 'nose only'
+    assert code_to_decoded['922'] == 'LC0'
+    assert code_to_decoded['926'] == 'LC50'
+    assert code_to_decoded['1754'] == 'act. ingr.'
+    assert code_to_decoded['2195'] == 'not classified'
+
 
 def test_create_manifest():
     subtype="AcuteToxicityInhalation"
@@ -412,14 +647,96 @@ def test_rename_cols():
     assert list(df_old_col_names.columns) == new_col_names
 
 
-def test_lower_upper_function(): # TODO
-    return 
+def test_lower_upper_function(df_lower_upper):
+    solution = {
+        "units": [['kg'], ["lb"]],
+        "col_lower": [[1.5, 2.0], [1.0]],
+        "col_upper": [[2.5, 3.0], [2.0]],
+    }
 
-def test_value_function(): # TODO
-    return 
+    for idx, row in df_lower_upper.iterrows():
+        unit_col = 'unit_col'
+        col_lower = 'col_lower'
+        col_upper = 'col_upper'
+        units, lower_values, upper_values = lower_upper_function(unit_col, col_lower, col_upper, row)
+        assert units == solution['units'][idx]
+        assert lower_values == solution['col_lower'][idx]
+        assert upper_values == solution['col_upper'][idx]
 
-def test_convert_units_given_unit_dicts(): # TODO
-    return 
+        sample_row_with_na = row.copy()
+        sample_row_with_na['col_lower'] = None
+        sample_row_with_na['col_upper'] = None
+        units, lower_values, upper_values = lower_upper_function(unit_col, col_lower, col_upper, sample_row_with_na)
+        assert units == solution['units'][idx]
+        assert np.isnan(lower_values[0]) 
+        assert np.isnan(upper_values[0]) 
+
+        sample_row_with_non_numeric = row.copy()
+        sample_row_with_non_numeric['col_lower'] = 'a, b'
+        sample_row_with_non_numeric['col_upper'] = 'x, y'
+        units, lower_values, upper_values = lower_upper_function(unit_col, col_lower, col_upper, sample_row_with_non_numeric)
+        assert units == solution['units'][idx]
+        assert np.isnan(lower_values[0]) 
+        assert np.isnan(lower_values[1]) 
+        assert np.isnan(upper_values[0]) 
+        assert np.isnan(upper_values[1]) 
+
+        sample_row_with_spaces = row.copy()
+        sample_row_with_spaces['col_lower'] = ' 1.5 ,  2.0 '
+        sample_row_with_spaces['col_upper'] = ' 2.0 , 3.5 '
+        units, lower_values, upper_values = lower_upper_function(unit_col, col_lower, col_upper, sample_row_with_spaces)
+        assert units == solution['units'][idx]
+        assert lower_values == [1.5, 2.0]
+        assert upper_values == [2.0, 3.5]
+
+
+def test_value_function(df_value):
+    solution = {
+        "units": [['kg', 'kg'], ["lb"]],
+        "value_col": [[1.5, 2.0], [1.0]],
+    }
+
+    for idx, row in df_value.iterrows():
+        unit_col = 'unit_col'
+        value_col = 'value_col'
+        value_list, unit_list = value_function(unit_col, value_col, row)
+        assert unit_list == solution['units'][idx]
+        assert value_list == solution['value_col'][idx]
+
+        sample_row_with_na = row.copy()
+        sample_row_with_na['units'] = None
+        sample_row_with_na['value_col'] = None
+        value_list, unit_list = value_function(unit_col, value_col, sample_row_with_na)
+        assert unit_list == solution['units'][idx]
+        assert np.isnan(value_list[0]) 
+
+        sample_row_with_non_numeric = row.copy()
+        sample_row_with_non_numeric['value_col'] = 'a, b'
+        value_list, unit_list = value_function(unit_col, value_col, sample_row_with_non_numeric)
+        assert unit_list == solution['units'][idx]
+        assert np.isnan(value_list[0]) 
+        assert np.isnan(value_list[1]) 
+
+        sample_row_with_spaces = row.copy()
+        sample_row_with_spaces['value_col'] = ' 1.5 ,  2.0 '
+        value_list, unit_list = value_function(unit_col, value_col, sample_row_with_spaces)
+        assert unit_list == solution['units'][idx]
+        assert value_list == [1.5, 2.0]
+
+def test_convert_units_given_unit_dicts(conversion_df): # TODO
+    unit_to_calc = {'kg': 1000, 'lb': 0.453592, 'm': 100, 'cm': 10}
+    unit_to_new_unit = {'kg': 'g', 'lb': 'kg', 'm': 'cm', 'cm': 'mm'}
+    df = convert_units_given_unit_dicts(
+        df=conversion_df, 
+        value_col="value_col", 
+        unit_col="unit_col", 
+        unit_to_calc=unit_to_calc, 
+        unit_to_new_unit=unit_to_new_unit)
+    print(list(df["unit_col"]))
+    print(list(df["value_col_value"]))
+    assert list(df["unit_col"]) == ['g, g', 'kg', 'cm', 'mm']
+    assert list(df["value_col_value"]) == ['1000.0, 2000.0', '0.453592', '100', '10']
+
 
 def test_convert_units(): # TODO
     return 

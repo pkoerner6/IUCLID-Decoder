@@ -429,6 +429,7 @@ def get_values_for_dir_list(
     and returns a DataFrame containing all relevant data for the specified subtype.
     """
     list_of_dfs: List[pd.DataFrame] = []
+    df = pd.DataFrame()
     code_to_decoded, sub_col_name_decode = get_code_to_decode(dir_list=dir_list, subtype=subtype, directory_to_folders=directory_to_folders) # Get the code-to-decoded mapping and the list of columns that require decoding
     # Iterate over each directory in the list, create a manifest DataFrame for the current directory, and get the values for the directory
     for dir in tqdm.tqdm(dir_list):
@@ -450,8 +451,9 @@ def get_values_for_dir_list(
             )
             list_of_dfs.append(df)
 
-    df = pd.concat(list_of_dfs, ignore_index=True) # Concatenate the DataFrames of each directory into a single DataFrame
-    df.reset_index(inplace=True, drop=True)
+    if len(list_of_dfs) > 0:
+        df = pd.concat(list_of_dfs, ignore_index=True) # Concatenate the DataFrames of each directory into a single DataFrame
+        df.reset_index(inplace=True, drop=True)
 
     # Decode the values in the specified columns
     sub_col_name_decode.append("unitcode")
@@ -657,7 +659,7 @@ def lower_upper_function(unit_col: str, col_lower: str, col_upper: str, row):
     Retrurns a list of units, a list of lower values as floats, a list of upper values as floats.
     """
     if pd.isna(col_lower) or pd.isna(col_upper):
-        return [], [], [], [], []
+        return [], [], []
     units = str(row[unit_col])
     vals_lower = str(row[col_lower])
     vals_upper = str(row[col_upper])
@@ -676,6 +678,8 @@ def value_function(unit_col: str, val_col: str, row):
     values = str(row[val_col])
     unit_list = [unit.strip() for unit in units.split(',')]
     value_list = [pd.to_numeric(value.strip(), errors='coerce') for value in values.split(',')]
+    if len(value_list) == len(unit_list):
+        log.warn("Not for every value a unit was provided!", values=value_list, units=unit_list)
     return value_list, unit_list
 
 
