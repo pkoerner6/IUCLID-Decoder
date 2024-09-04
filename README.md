@@ -8,6 +8,8 @@ This package processes REACH Study Results and saves the data to an SQLite datab
 
 The REACH Study Results is a collection of non-confidential substance data that was submitted to the European Chemicals Agendy (ECHA) under the European Regulation on Registration, Evalutaiton, Authorization, and Restriction of Chemicals (REACH). The REACH Study Results contain results from studies that relate to physicohemical properties, environmental fate and pathways, and, ecotoxicology and toxicological information. The information for the currently more than 20 000 substances is stored in the REACH Study Results in over 4 million i6d-files. The IUCLID-Decoder package provided here enables the user to extract the information from the i6d-files and to compile it in a database (or optionally an excel file). In addition, the information that is available in the REACH Study Results as numerical code (including information on units, methods, reliability or study types) is converted into text. The units of the study results are standardised as far as possible.
 
+It is recommended to check the IUCLID website regularly, as updated REACH Study Results are uploaded once or twice a year to the IUCLID website. This data can be easily transferred to a new (or updated) database using the IUCLID decoder.
+
 
 ## Installation
 
