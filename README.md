@@ -23,7 +23,9 @@ pip3 install .
 
 ## Usage
 
-To use the ```decrypt_reach_results``` function in your Python code, you first need to install the ```iuclid_decoder``` package as described above. Ensure that the Python script where you intend to use the ```decrypt_reach_results``` function is in the same directory as the downloaded REACH study results dossiers.
+To use the ```decrypt_reach_results``` function in your Python code, you first need to install the ```iuclid_decoder``` package as described above. You may also consider to create a seperate environment. The structure of the directory should be e.g., reach_study_results/reach_study_results_dossier_xx_xx_xxx.i6z. Ensure that the Python script where you intend to use the ```decrypt_reach_results``` function is also in reach_study_results. 
+
+If running the code under Windows, please unzip all files before running the function. The structure of the directory should be reach_study_results/reach_study_results_dossier_xx_xx_xxx_unzipped/unzipped_dossiers . Ensure that the Python script where you intend to use the ```decrypt_reach_results``` function is in reach_study_results. 
 
 ### Function Arguments
 The ```decrypt_reach_results``` function accepts four arguments—two required and two optional:
