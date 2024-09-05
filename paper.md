@@ -35,6 +35,8 @@ The REACH Study Results contain one main folder per registered substance. This f
 
 It is recommended to check the IUCLID website regularly, as updated REACH Study Results are uploaded once or twice a year. This data can be easily transferred to a new (or updated) database using the IUCLID decoder package.
 
+The decrypt_reach_results function has already been used in our previous work where we analyzed the physicochemcial property data [@Gluge2023a] and the bioconcentration data [@Gluge2022b] in the ECHA database. We have also used it in @Korner2024 to check certain REACH study results on ready-biodegradation.
+
 # Acknowledgements
 We thank Martin Scheringer for the initial idea of the project and Stefan Glüge for support in between. PK and JG acknowledge funding from the Swiss Federal Office for the Environment. 
 
