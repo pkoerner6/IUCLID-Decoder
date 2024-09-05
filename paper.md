@@ -8,10 +8,10 @@ tags:
   - REACH
 authors:
   - name: Paulina Körner    
-    affiliation: ‘1’
+    affiliation: 1
   - name: Juliane Glüge
     orcid: 0000-0003-1997-2750
-    affiliation: ‘1’
+    affiliation: 1
     corresponding: true
 affiliations:
  - name: Institute of Biogeochemistry and Pollutant Dynamics, ETH Zurich, 8092 Zurich, Switzerland
