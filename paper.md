@@ -1,20 +1,20 @@
 ---
 title: ‘IUCLID-Decoder: Python code to extract the chemical property data for the substances registered under REACH’
 tags:
-  - Python
-  - IUCLID
-  - xml
-  - chemical property data
-  - REACH
+- Python
+- IUCLID
+- xml
+- chemical property data
+- REACH
 authors:
-  - name: Paulina Körner    
-    affiliation: 1
-  - name: Juliane Glüge
-    orcid: 0000-0003-1997-2750
-    affiliation: 1
-    corresponding: true
+- name: Paulina Körner  
+ affiliation: 1
+- name: Juliane Glüge
+ orcid: 0000-0003-1997-2750
+ affiliation: 1
+ corresponding: true
 affiliations:
- - name: Institute of Biogeochemistry and Pollutant Dynamics, ETH Zurich, 8092 Zurich, Switzerland
+- name: Institute of Biogeochemistry and Pollutant Dynamics, ETH Zurich, 8092 Zurich, Switzerland
 date: 5 September 2024
 bibliography: paper.bib
 doi: 10.3847/xxxxx
