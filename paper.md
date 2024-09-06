@@ -1,5 +1,5 @@
 ---
-title: 'IUCLID-Decoder: Python code to extract the chemical property data for the substances registered under REACH’'
+title: 'IUCLID-Decoder: Python code to extract the chemical property data for the substances registered under REACH'
 tags:
   - Python
   - IUCLID
