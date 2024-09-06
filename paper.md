@@ -15,6 +15,7 @@ authors:
  corresponding: true
 affiliations:
 - name: Institute of Biogeochemistry and Pollutant Dynamics, ETH Zurich, 8092 Zurich, Switzerland
+- index: 1
 date: 5 September 2024
 bibliography: paper.bib
 
