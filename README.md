@@ -2,7 +2,14 @@
 
 ## Overview
 
-This package processes REACH study results and saves the data to an SQLite database and optionally an Excel file. Running this file requires you to first download the REACH study results dossiers from the [IUCLID website](https://iuclid6.echa.europa.eu). The REACH study results dossiers should be placed in the same directory as the code file where you intend to use the ```decrypt_reach_results``` function.
+This package processes REACH Study Results and saves the data to an SQLite database and optionally an Excel file. Using this package requires you to first download the REACH Study Results dossiers from the [IUCLID website](https://iuclid6.echa.europa.eu). The REACH Study Results dossiers should be placed in the same directory as the code file where you intend to use the ```decrypt_reach_results``` function.
+
+## Statement of need
+
+The REACH Study Results is a collection of non-confidential substance data that was submitted to the European Chemicals Agendy (ECHA) under the European Regulation on Registration, Evalutaiton, Authorization, and Restriction of Chemicals (REACH). The REACH Study Results contain results from studies that relate to physicohemical properties, environmental fate and pathways, and, ecotoxicology and toxicological information. The information for the currently more than 20 000 substances is stored in the REACH Study Results in over 4 million i6d-files. The IUCLID-Decoder package provided here enables the user to extract the information from the i6d-files and to compile it in a database (or optionally an excel file). In addition, the information that is available in the REACH Study Results as numerical code (including information on units, methods, reliability or study types) is converted into text. The units of the study results are standardised as far as possible.
+
+It is recommended to check the IUCLID website regularly, as updated REACH Study Results are uploaded once or twice a year to the IUCLID website. This data can be easily transferred to a new (or updated) database using the IUCLID decoder.
+
 
 ## Installation
 
@@ -16,7 +23,9 @@ pip3 install .
 
 ## Usage
 
-To use the ```decrypt_reach_results``` function in your Python code, you first need to install the ```iuclid_decoder``` package as described above. Ensure that the Python script where you intend to use the ```decrypt_reach_results``` function is in the same directory as the downloaded REACH study results dossiers.
+To use the ```decrypt_reach_results``` function in your Python code, you first need to install the ```iuclid_decoder``` package as described above. You may also consider to create a seperate environment. The structure of the directory should be e.g., reach_study_results/reach_study_results_dossier_xx_xx_xxx.i6z. Ensure that the Python script where you intend to use the ```decrypt_reach_results``` function is also in reach_study_results. 
+
+If running the code under Windows, please unzip all files before running the function. The structure of the directory should be reach_study_results/reach_study_results_dossier_xx_xx_xxx_unzipped/unzipped_dossiers . Ensure that the Python script where you intend to use the ```decrypt_reach_results``` function is in reach_study_results. 
 
 ### Function Arguments
 The ```decrypt_reach_results``` function accepts four arguments—two required and two optional:
