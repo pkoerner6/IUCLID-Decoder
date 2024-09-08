@@ -715,8 +715,8 @@ def convert_units_given_unit_dicts(df: pd.DataFrame, value_col: str, unit_col: s
             for index, unit in enumerate(unit_list): 
                 if unit in unit_to_calc: # Get the conversion factor for the unit
                     calc = unit_to_calc[unit]
-                    # value_list[index] = value_list[index] * calc # TODO
-                    value_list[index] = np.multiply(value_list[index], calc, dtype=np.float128) # TODO
+                    value_list[index] = value_list[index] * calc # TODO
+                    # value_list[index] = np.multiply(value_list[index], calc, dtype=np.float128) # TODO
                     unit_list[index] = unit_to_new_unit[unit] # Update the unit to the new unit name
             # Update the DataFrame with the converted values and units
             df[val_col] = df[val_col].astype(str)
