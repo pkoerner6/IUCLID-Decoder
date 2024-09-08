@@ -8,6 +8,7 @@ tags:
   - REACH
 authors:
   - name: Paulina Körner
+    orcid: 0009-0001-4224-9950
     affiliation: "1"
   - name: Juliane Glüge
     orcid: 0000-0003-1997-2750
