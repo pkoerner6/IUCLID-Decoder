@@ -715,10 +715,6 @@ def convert_units_given_unit_dicts(df: pd.DataFrame, value_col: str, unit_col: s
             for index, unit in enumerate(unit_list): 
                 if unit in unit_to_calc: # Get the conversion factor for the unit
                     calc = unit_to_calc[unit]
-                    max_value = np.finfo(np.float64).max # TODO
-                    # if calc > 1 and value_list[index] > max_value / calc:
-                        # print("value_list[index]: ", value_list[index]) # TODO
-                        # print("calc: ", calc)
                     try:
                         np.seterr(over='raise')
                         value_list[index] = value_list[index] * calc # TODO
@@ -726,8 +722,7 @@ def convert_units_given_unit_dicts(df: pd.DataFrame, value_col: str, unit_col: s
                         print("Overflow caught!")
                         print("value_list[index]: ", value_list[index])
                         print("calc: ", calc)
-
-                    
+                        print("unit_list[index]: ", unit)
                     unit_list[index] = unit_to_new_unit[unit] # Update the unit to the new unit name
             # Update the DataFrame with the converted values and units
             df[val_col] = df[val_col].astype(str)
