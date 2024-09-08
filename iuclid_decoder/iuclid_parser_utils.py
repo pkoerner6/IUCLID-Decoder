@@ -678,8 +678,6 @@ def value_function(unit_col: str, val_col: str, row):
     values = str(row[val_col])
     unit_list = [unit.strip() for unit in units.split(',')]
     value_list = [pd.to_numeric(value.strip(), errors='coerce') for value in values.split(',')]
-    if len(value_list) != len(unit_list):
-        log.warn("Not for every value a unit was provided!", values=value_list, len_values=len(value_list), units=unit_list, len_units=len(unit_list))
     return value_list, unit_list
 
 
@@ -713,6 +711,7 @@ def convert_units_given_unit_dicts(df: pd.DataFrame, value_col: str, unit_col: s
         val_col = value_col + "_value"
         for idx, row in df.iterrows():
             value_list, unit_list = value_function(unit_col, val_col, row)
+            print(value_list.dtype) # TODO
             # Convert values using the provided conversion factors
             for index, unit in enumerate(unit_list): 
                 if unit in unit_to_calc: # Get the conversion factor for the unit
