@@ -719,10 +719,7 @@ def convert_units_given_unit_dicts(df: pd.DataFrame, value_col: str, unit_col: s
                         np.seterr(over='raise')
                         value_list[index] = value_list[index] * calc # TODO
                     except FloatingPointError as e:
-                        print("Overflow caught!")
-                        print("value_list[index]: ", value_list[index])
-                        print("calc: ", calc)
-                        print("unit_list[index]: ", unit)
+                        log.warn("Overflow caught! Not converting the value!", value=value_list[index], unit=unit)
                     unit_list[index] = unit_to_new_unit[unit] # Update the unit to the new unit name
             # Update the DataFrame with the converted values and units
             df[val_col] = df[val_col].astype(str)
