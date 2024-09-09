@@ -697,9 +697,17 @@ def convert_units_given_unit_dicts(df: pd.DataFrame, value_col: str, unit_col: s
                 if unit in unit_to_calc: # Get the conversion factor for the unit
                     calc = unit_to_calc[unit]
                     if index < len(val_list_lower):
-                        val_list_lower[index] = val_list_lower[index] * calc
+                        try:
+                            np.seterr(over='raise')
+                            val_list_lower[index] = val_list_lower[index] * calc
+                        except FloatingPointError as e:
+                            log.warn("Converting this value would lead to overflow. Therefore, the conversion was not executed!", value=val_list_lower[index], unit=unit)
                     if index < len(val_list_upper):
-                        val_list_upper[index] = val_list_upper[index] * calc
+                        try:
+                            np.seterr(over='raise')
+                            val_list_upper[index] = val_list_upper[index] * calc
+                        except FloatingPointError as e:
+                            log.warn("Converting this value would lead to overflow. Therefore, the conversion was not executed!", value=val_list_upper[index], unit=unit)
                     unit_list[index] = unit_to_new_unit[unit] # Update the unit to the new unit name
             # Update the DataFrame with the converted values and units
             df[col_lower] = df[col_lower].astype(str)
@@ -717,7 +725,7 @@ def convert_units_given_unit_dicts(df: pd.DataFrame, value_col: str, unit_col: s
                     calc = unit_to_calc[unit]
                     try:
                         np.seterr(over='raise')
-                        value_list[index] = value_list[index] * calc # TODO
+                        value_list[index] = value_list[index] * calc 
                     except FloatingPointError as e:
                         log.warn("Converting this value would lead to overflow. Therefore, the conversion was not executed!", value=value_list[index], unit=unit)
                     unit_list[index] = unit_to_new_unit[unit] # Update the unit to the new unit name
